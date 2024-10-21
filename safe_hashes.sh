@@ -187,7 +187,7 @@ calculate_safe_tx_hashes() {
     local response=$(curl -s "$endpoint")
     local to=$(echo "$response" | jq -r '.results[0].to')
     local value=$(echo "$response" | jq -r '.results[0].value')
-    local data=$(echo "$response" | jq -r '.results[0].data')
+    local data=$(echo "$response" | jq -r '.results[0].data // "0x"')
     local operation=$(echo "$response" | jq -r '.results[0].operation')
     local safe_tx_gas=$(echo "$response" | jq -r '.results[0].safeTxGas')
     local base_gas=$(echo "$response" | jq -r '.results[0].baseGas')
