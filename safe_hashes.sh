@@ -185,16 +185,16 @@ calculate_safe_tx_hashes() {
 
     # Fetch the transaction data from the API.
     local response=$(curl -s "$endpoint")
-    local to=$(echo "$response" | jq -r '.results[0].to')
-    local value=$(echo "$response" | jq -r '.results[0].value')
+    local to=$(echo "$response" | jq -r '.results[0].to // "0x0000000000000000000000000000000000000000"')
+    local value=$(echo "$response" | jq -r '.results[0].value // "0"')
     local data=$(echo "$response" | jq -r '.results[0].data // "0x"')
-    local operation=$(echo "$response" | jq -r '.results[0].operation')
-    local safe_tx_gas=$(echo "$response" | jq -r '.results[0].safeTxGas')
-    local base_gas=$(echo "$response" | jq -r '.results[0].baseGas')
-    local gas_price=$(echo "$response" | jq -r '.results[0].gasPrice')
-    local gas_token=$(echo "$response" | jq -r '.results[0].gasToken')
-    local refund_receiver=$(echo "$response" | jq -r '.results[0].refundReceiver')
-    local nonce=$(echo "$response" | jq -r '.results[0].nonce')
+    local operation=$(echo "$response" | jq -r '.results[0].operation // "0"')
+    local safe_tx_gas=$(echo "$response" | jq -r '.results[0].safeTxGas // "0"')
+    local base_gas=$(echo "$response" | jq -r '.results[0].baseGas // "0"')
+    local gas_price=$(echo "$response" | jq -r '.results[0].gasPrice // "0"')
+    local gas_token=$(echo "$response" | jq -r '.results[0].gasToken // "0x0000000000000000000000000000000000000000"')
+    local refund_receiver=$(echo "$response" | jq -r '.results[0].refundReceiver // "0x0000000000000000000000000000000000000000"')
+    local nonce=$(echo "$response" | jq -r '.results[0].nonce // "0"')
 
     # Calculate and display the hashes.
     echo "==================================="
