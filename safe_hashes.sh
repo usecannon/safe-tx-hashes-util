@@ -64,19 +64,25 @@ declare -A CHAIN_IDS=(
     [zksync]=324
 )
 
+# Utility function to list all supported networks.
+list_networks() {
+    echo "Supported Networks:"
+    for network in "${!CHAIN_IDS[@]}"; do
+        echo "  $network (${CHAIN_IDS[$network]})"
+    done
+    exit 0
+}
+
 # Utility function to display the usage information.
 usage() {
-    echo "Usage: $0 [--help] --network <network> --address <address> --nonce <nonce>"
+    echo "Usage: $0 [--help] [--list-networks] --network <network> --address <address> --nonce <nonce>"
     echo
     echo "Options:"
     echo "  --help              Display this help message"
+    echo "  --list-networks     List all supported networks and their chain IDs"
     echo "  --network <network> Specify the network (required)"
     echo "  --address <address> Specify the Safe multisig address (required)"
     echo "  --nonce <nonce>     Specify the transaction nonce (required)"
-    echo
-    echo "Supported networks:"
-    echo "  arbitrum, aurora, avalanche, base, base-sepolia, bsc, celo, ethereum, gnosis,"
-    echo "  linea, optimism, polygon, polygon-zkevm, scroll, sepolia, xlayer, zksync"
     echo
     echo "Example:"
     echo "  $0 --network ethereum --address 0x1234...5678 --nonce 42"
@@ -132,7 +138,6 @@ calculate_hashes() {
     }
 
     # Print the results with the same formatting for "Domain hash" and "Message hash" as a Ledger hardware.
-    echo "Chain ID: $chain_id"
     echo "Domain Hash: $(format_hash "$domain_hash")"
     echo "Message Hash: $(format_hash "$message_hash")"
     echo "Safe transaction hash: $safe_tx_hash"
@@ -157,6 +162,7 @@ calculate_safe_tx_hashes() {
             --network) network="$2"; shift 2 ;;
             --address) address="$2"; shift 2 ;;
             --nonce) nonce="$2"; shift 2 ;;
+            --list-networks) list_networks ;;
             *) echo "Unknown option: $1" >&2; usage ;;
         esac
     done
@@ -183,6 +189,14 @@ calculate_safe_tx_hashes() {
     local nonce=$(echo "$response" | jq -r '.results[0].nonce')
 
     # Calculate and display the hashes.
+    echo "==================================="
+    echo "= Selected Network Configurations ="
+    echo "==================================="
+    echo "Network: $network"
+    echo -e "Chain ID: $chain_id\n"
+    echo "==================="
+    echo "= Computed Hashes ="
+    echo "==================="
     calculate_hashes "$chain_id" "$address" "$to" "$value" "$data" "$operation" "$safe_tx_gas" "$base_gas" "$gas_price" "$gas_token" "$refund_receiver" "$nonce"
 }
 

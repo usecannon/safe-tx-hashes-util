@@ -1,94 +1,66 @@
-# Safe Transaction Hashes Calculator
+# Safe Multisig Transaction Hashes
 
-## Overview
-
-The _Safe Transaction Hashes Calculator_ is a Bash [script](./safe_tx_hashes_calculator.sh) designed to compute and display various hashes associated with Safe (formerly Gnosis Safe) multi-signature wallet transactions. This tool is particularly useful for developers and users working with Safe wallets who need to verify transaction hashes or understand the components that go into creating a Safe transaction.
-
-## Features
-
-- Supports multiple networks (Ethereum, Arbitrum, Polygon, etc.)
-- Fetches transaction data from the Safe Transaction Service API
-- Calculates and displays:
-  - Domain Hash
-  - Message Hash
-  - Safe Transaction Hash
-
-## Prerequisites
-
-- Bash shell
-- `curl` for making API requests
-- `jq` for parsing JSON responses
-- `chisel` and `cast` from the [Foundry](https://book.getfoundry.sh/) toolkit
-
-## Installation
-
-1. Clone this repository or download the `safe_tx_hashes_calculator.sh` script.
-2. Make the script executable:
-   ```console
-   chmod +x safe_tx_hash_calculator.sh
-   ```
-
-## Usage
-
-Run the script with the following command:
-
-```console
-./safe_tx_hashes_calculator.sh --network <network> --address <safe_address> --nonce <transaction_nonce>
-```
-
-### Parameters
-
-- `--network`: The network where the Safe is deployed (e.g., ethereum, arbitrum, polygon)
-- `--address`: The address of the Safe
-- `--nonce`: The nonce of the transaction
-
-### Example
-
-```console
-./safe_tx_hashes_calculator.sh --network arbitrum --address 0x111CEEee040739fD91D29C34C33E6B3E112F2177 --nonce 234
-```
-
-### Output
-
-The script will output:
-
-- Chain ID
-- Domain Hash
-- Message Hash
-- Safe Transaction Hash
-
-All hashes are displayed with the `0x` prefix in lowercase and the rest of the hash in uppercase.
+This Bash [script](./safe_hashes.sh) calculates the Safe transaction hashes by retrieving transaction details from the [Safe transaction service API](https://docs.safe.global/core-api/transaction-service-overview) and computing both the domain and message hashes using the [EIP-712](https://eips.ethereum.org/EIPS/eip-712) standard.
 
 ## Supported Networks
 
-- Arbitrum
-- Aurora
-- Avalanche
-- Base
-- Base Sepolia
-- BSC (Binance Smart Chain)
-- Celo
-- Ethereum
-- Gnosis Chain
-- Linea
-- Optimism
-- Polygon
-- Polygon zkEVM
-- Scroll
-- Sepolia
-- xLayer
-- zkSync
+- Arbitrum (identifier: `arbitrum`, chain ID: `42161`)
+- Aurora (identifier: `aurora`, chain ID: `1313161554`)
+- Avalanche (identifier: `avalanche`, chain ID: `43114`)
+- Base (identifier: `base`, chain ID: `8453`)
+- Base Sepolia (identifier: `base-sepolia`, chain ID: `84532`)
+- BSC (Binance Smart Chain) (identifier: `bsc`, chain ID: `56`)
+- Celo (identifier: `celo`, chain ID: `42220`)
+- Ethereum (identifier: `ethereum`, chain ID: `1`)
+- Gnosis Chain (identifier: `gnosis`, chain ID: `100`)
+- Linea (identifier: `linea`, chain ID: `59144`)
+- Optimism (identifier: `optimism`, chain ID: `10`)
+- Polygon (identifier: `polygon`, chain ID: `137`)
+- Polygon zkEVM (identifier: `polygon-zkevm`, chain ID: `1101`)
+- Scroll (identifier: `scroll`, chain ID: `534352`)
+- Sepolia (identifier: `sepolia`, chain ID: `11155111`)
+- X Layer (identifier: `xlayer`, chain ID: `195`)
+- ZKsync Era (identifier: `zksync`, chain ID: `324`)
 
-## Error Handling
+## Usage
 
-The script includes error handling for:
+> [!NOTE]
+> Ensure that [`cast`](https://github.com/foundry-rs/foundry/tree/master/crates/cast) and [`chisel`](https://github.com/foundry-rs/foundry/tree/master/crates/chisel) are installed locally. For installation instructions, refer to this [guide](https://book.getfoundry.sh/getting-started/installation).
 
-- Missing or invalid parameters
-- Network connection issues
-- API response parsing errors
+```console
+./safe_hashes.sh [--help] [--list-networks] --network <network> --address <address> --nonce <nonce>
+```
 
-If you encounter any issues, make sure your input parameters are correct and you have an active internet connection.
+**Options:**
 
-## Security Considerations
+- `--help`: Display this help message.
+- `--list-networks`: List all supported networks and their chain IDs.
+- `--network <network>`: Specify the network (e.g., `ethereum`, `polygon`).
+- `--address <address>`: Specify the Safe multisig address.
+- `--nonce <nonce>`: Specify the transaction nonce.
 
-TBD
+Before you invoke the script, make it executable:
+
+```console
+chmod +x safe_hashes.sh
+```
+
+## Example
+
+```console
+./safe_hashes.sh --network arbitrum --address 0x111CEEee040739fD91D29C34C33E6B3E112F2177 --nonce 234
+```
+
+To list all supported networks:
+
+```console
+./safe_hashes.sh --list-networks
+```
+
+## Trust Assumptions
+
+1. You trust my script 😃.
+2. You trust Linux.
+3. You trust [Foundry](https://github.com/foundry-rs/foundry/tree/master/crates/cast).
+4. You trust the [Safe transaction service API](https://docs.safe.global/core-api/transaction-service-overview).
+5. You trust[Ledger's secure screen](https://www.ledger.com/academy/topics/ledgersolutions/ledger-wallets-secure-screen-security-model).
