@@ -137,7 +137,7 @@ calculate_hashes() {
         echo "${prefix,,}${rest^^}"
     }
 
-    # Print the results with the same formatting for "Domain hash" and "Message hash" as a Ledger hardware.
+    # Print the results with the same formatting for "Domain hash" and "Message hash" as a Ledger hardware device.
     echo "Domain Hash: $(format_hash "$domain_hash")"
     echo "Message Hash: $(format_hash "$message_hash")"
     echo "Safe transaction hash: $safe_tx_hash"

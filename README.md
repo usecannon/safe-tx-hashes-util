@@ -76,8 +76,8 @@ To list all supported networks:
 
 ## Trust Assumptions
 
-1. You trust my script 😃.
+1. You trust my [script](./safe_hashes.sh) 😃.
 2. You trust Linux.
-3. You trust [Foundry](https://github.com/foundry-rs/foundry/tree/master/crates/cast).
+3. You trust [Foundry](https://github.com/foundry-rs/foundry).
 4. You trust the [Safe transaction service API](https://docs.safe.global/core-api/transaction-service-overview).
 5. You trust [Ledger's secure screen](https://www.ledger.com/academy/topics/ledgersolutions/ledger-wallets-secure-screen-security-model).
