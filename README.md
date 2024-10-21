@@ -51,6 +51,23 @@ chmod +x safe_hashes.sh
 ./safe_hashes.sh --network arbitrum --address 0x111CEEee040739fD91D29C34C33E6B3E112F2177 --nonce 234
 ```
 
+The script will output the domain, message, and Safe transaction hashes, allowing you to easily verify them against the values displayed on your Ledger hardware wallet screen:
+
+```console
+===================================
+= Selected Network Configurations =
+===================================
+Network: arbitrum
+Chain ID: 42161
+
+===================
+= Computed Hashes =
+===================
+Domain Hash: 0x1CF7F9B1EFE3BC47FE02FD27C649FEA19E79D66040683A1C86C7490C80BF7291
+Message Hash: 0xD9109EA63C50ECD3B80B6B27ED5C5A9FD3D546C2169DFB69BFA7BA24CD14C7A5
+Safe transaction hash: 0x0cb7250b8becd7069223c54e2839feaed4cee156363fbfe5dd0a48e75c4e25b3
+```
+
 To list all supported networks:
 
 ```console
@@ -63,4 +80,4 @@ To list all supported networks:
 2. You trust Linux.
 3. You trust [Foundry](https://github.com/foundry-rs/foundry/tree/master/crates/cast).
 4. You trust the [Safe transaction service API](https://docs.safe.global/core-api/transaction-service-overview).
-5. You trust[Ledger's secure screen](https://www.ledger.com/academy/topics/ledgersolutions/ledger-wallets-secure-screen-security-model).
+5. You trust [Ledger's secure screen](https://www.ledger.com/academy/topics/ledgersolutions/ledger-wallets-secure-screen-security-model).
