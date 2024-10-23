@@ -113,7 +113,7 @@ To list all supported networks:
 ## Community-Maintained User Interface Implementations
 
 > [!IMPORTANT]
-> Please be aware that interface implementations may introduce additional trust assumptions, such as relying on `npm` dependencies that have not undergone thorough review. Always verify and cross-reference with the main script.
+> Please be aware that user interface implementations may introduce additional trust assumptions, such as relying on `npm` dependencies that have not undergone thorough review. Always verify and cross-reference with the main script.
 
 - [`safehashpreview.com`](https://www.safehashpreview.com):
   - Code: [`josepchetrit12/safe-tx-hashes-util`](https://github.com/josepchetrit12/safe-tx-hashes-util)
