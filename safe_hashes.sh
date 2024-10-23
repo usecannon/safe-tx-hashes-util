@@ -271,7 +271,7 @@ calculate_safe_tx_hashes() {
 
     # Inform the user that no transactions are available for the specified nonce.
     if [[ $count -eq 0 ]]; then
-        echo "$(tput setaf 3)No transactions are available for this nonce!$(tput setaf 0)"
+        echo "$(tput setaf 3)No transaction is available for this nonce!$(tput setaf 0)"
         exit 0
     # Notify the user about multiple transactions with identical nonce values and prompt for user input.
     elif [[ $count -gt 1 ]]; then
