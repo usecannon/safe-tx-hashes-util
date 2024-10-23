@@ -140,11 +140,11 @@ print_transaction_data() {
     local data=$3
     local message=$4
 
-    print_header "Data"
-    print_field "Address" "$address"
+    print_header "Transaction Data"
+    print_field "Multisig address" "$address"
     print_field "To" "$to"
     print_field "Data" "$data"
-    print_field "Message" "$message"
+    print_field "Encoded message" "$message"
 }
 
 # Utility function to format the hash (keep `0x` lowercase, rest uppercase).
@@ -167,6 +167,22 @@ print_hash_info() {
     print_field "Safe transaction hash" "$safe_tx_hash"
 }
 
+# Utility function to print the ABI-decoded transaction data.
+print_decoded_data() {
+    local data_decoded=$1
+
+    if [[ "$data_decoded" == "0x" ]]; then
+        print_field "Method" "0x (ETH Transfer)"
+        print_field "Parameters" "[]"
+    else
+        method=$(echo "$data_decoded" | jq -r ".method")
+        parameters=$(echo "$data_decoded" | jq -r ".parameters")
+
+        print_field "Method" "$method"
+        print_field "Parameters" "$parameters"
+    fi
+}
+
 # Utility function to calculate the domain and message hashes.
 calculate_hashes() {
     local chain_id=$1
@@ -181,6 +197,7 @@ calculate_hashes() {
     local gas_token=${10}
     local refund_receiver=${11}
     local nonce=${12}
+    local data_decoded=${13}
 
     # Calculate the domain hash.
     local domain_hash=$(chisel eval "keccak256(abi.encode($DOMAIN_SEPARATOR_TYPEHASH, $chain_id, $address))" | awk '/Data:/ {gsub(/\x1b\[[0-9;]*m/, "", $3); print $3}')
@@ -199,6 +216,8 @@ calculate_hashes() {
 
     # Print the retrieved transaction data.
     print_transaction_data "$address" "$to" "$data" "$message"
+    # Print the ABI-decoded transaction data.
+    print_decoded_data "$data_decoded"
     # Print the results with the same formatting for "Domain hash" and "Message hash" as a Ledger hardware device.
     print_hash_info "$domain_hash" "$message_hash" "$safe_tx_hash"
 }
@@ -257,6 +276,7 @@ calculate_safe_tx_hashes() {
     local gas_token=$(echo "$response" | jq -r '.results[0].gasToken // "0x0000000000000000000000000000000000000000"')
     local refund_receiver=$(echo "$response" | jq -r '.results[0].refundReceiver // "0x0000000000000000000000000000000000000000"')
     local nonce=$(echo "$response" | jq -r '.results[0].nonce // "0"')
+    local data_decoded=$(echo "$response" | jq -r '.results[0].dataDecoded // "0x"')
 
     # Calculate and display the hashes.
     echo "==================================="
@@ -264,10 +284,10 @@ calculate_safe_tx_hashes() {
     echo -e "===================================\n"
     print_field "Network" "$network"
     print_field "Chain ID" "$chain_id" true
-    echo "============================"
-    echo "= Data and Computed Hashes ="
-    echo "============================"
-    calculate_hashes "$chain_id" "$address" "$to" "$value" "$data" "$operation" "$safe_tx_gas" "$base_gas" "$gas_price" "$gas_token" "$refund_receiver" "$nonce"
+    echo "========================================"
+    echo "= Transaction Data and Computed Hashes ="
+    echo "========================================"
+    calculate_hashes "$chain_id" "$address" "$to" "$value" "$data" "$operation" "$safe_tx_gas" "$base_gas" "$gas_price" "$gas_token" "$refund_receiver" "$nonce" "$data_decoded"
 }
 
 calculate_safe_tx_hashes "$@"
