@@ -94,3 +94,12 @@ To list all supported networks:
 3. You trust [Foundry](https://github.com/foundry-rs/foundry).
 4. You trust the [Safe transaction service API](https://docs.safe.global/core-api/transaction-service-overview).
 5. You trust [Ledger's secure screen](https://www.ledger.com/academy/topics/ledgersolutions/ledger-wallets-secure-screen-security-model).
+
+## Community-Maintained Interface Implementations
+
+> [!IMPORTANT]
+> Please be aware that interface implementations may introduce additional trust assumptions, such as relying on `npm` dependencies that have not undergone thorough review. Always verify and cross-reference with the main script.
+
+- [`safehashpreview`](https://www.safehashpreview.com):
+  - Code: https://github.com/josepchetrit12/safe-tx-hashes-util
+  - Author: https://github.com/josepchetrit12
