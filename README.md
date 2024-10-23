@@ -100,6 +100,6 @@ To list all supported networks:
 > [!IMPORTANT]
 > Please be aware that interface implementations may introduce additional trust assumptions, such as relying on `npm` dependencies that have not undergone thorough review. Always verify and cross-reference with the main script.
 
-- [`safehashpreview`](https://www.safehashpreview.com):
-  - Code: https://github.com/josepchetrit12/safe-tx-hashes-util
-  - Author: https://github.com/josepchetrit12
+- [`safehashpreview.com`](https://www.safehashpreview.com):
+  - Code: [`josepchetrit12/safe-tx-hashes-util`](https://github.com/josepchetrit12/safe-tx-hashes-util)
+  - Authors: [`josepchetrit12`](https://github.com/josepchetrit12), [`xaler5`](https://github.com/xaler5)
