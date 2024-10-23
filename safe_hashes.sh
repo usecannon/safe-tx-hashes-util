@@ -266,17 +266,59 @@ calculate_safe_tx_hashes() {
 
     # Fetch the transaction data from the API.
     local response=$(curl -s "$endpoint")
-    local to=$(echo "$response" | jq -r '.results[0].to // "0x0000000000000000000000000000000000000000"')
-    local value=$(echo "$response" | jq -r '.results[0].value // "0"')
-    local data=$(echo "$response" | jq -r '.results[0].data // "0x"')
-    local operation=$(echo "$response" | jq -r '.results[0].operation // "0"')
-    local safe_tx_gas=$(echo "$response" | jq -r '.results[0].safeTxGas // "0"')
-    local base_gas=$(echo "$response" | jq -r '.results[0].baseGas // "0"')
-    local gas_price=$(echo "$response" | jq -r '.results[0].gasPrice // "0"')
-    local gas_token=$(echo "$response" | jq -r '.results[0].gasToken // "0x0000000000000000000000000000000000000000"')
-    local refund_receiver=$(echo "$response" | jq -r '.results[0].refundReceiver // "0x0000000000000000000000000000000000000000"')
-    local nonce=$(echo "$response" | jq -r '.results[0].nonce // "0"')
-    local data_decoded=$(echo "$response" | jq -r '.results[0].dataDecoded // "0x"')
+    local count=$(echo "$response" | jq '.count')
+    local idx=0
+
+    # Inform the user that no transactions are available for the specified nonce.
+    if [[ $count -eq 0 ]]; then
+        echo "$(tput setaf 3)No transactions are available for this nonce!$(tput setaf 0)"
+        exit 0
+    # Notify the user about multiple transactions with identical nonce values and prompt for user input.
+    elif [[ $count -gt 1 ]]; then
+        cat << EOF
+$(tput setaf 3)Several transactions with identical nonce values have been detected.
+This occurrence is normal if you are deliberately replacing an existing transaction.
+However, if your Safe interface displays only a single transaction, this could indicate
+potential irregular activity requiring your attention.$(tput sgr0)
+
+Kindly specify the transaction's array value.
+You can find the array values at the following endpoint:
+$(tput setaf 2)$endpoint$(tput sgr0)
+
+Please enter the index of the array (starting with 0):
+EOF
+
+        while true; do
+            read -r idx
+
+            # Validate if user input is a number.
+            if ! [[ $idx =~ ^[0-9]+$ ]]; then
+                echo "$(tput setaf 1)Error: Please enter a valid number!$(tput sgr0)"
+                continue
+            fi
+
+            array_value=$(echo "$response" | jq ".results[$idx]")
+
+            if [[ $array_value == null ]]; then
+                echo "$(tput setaf 1)Error: No transaction found at index $idx. Please try again.$(tput sgr0)"
+                continue
+            fi
+
+            break
+        done
+    fi
+
+    local to=$(echo "$response" | jq -r ".results[$idx].to // \"0x0000000000000000000000000000000000000000\"")
+    local value=$(echo "$response" | jq -r ".results[$idx].value // \"0\"")
+    local data=$(echo "$response" | jq -r ".results[$idx].data // \"0x\"")
+    local operation=$(echo "$response" | jq -r ".results[$idx].operation // \"0\"")
+    local safe_tx_gas=$(echo "$response" | jq -r ".results[$idx].safeTxGas // \"0\"")
+    local base_gas=$(echo "$response" | jq -r ".results[$idx].baseGas // \"0\"")
+    local gas_price=$(echo "$response" | jq -r ".results[$idx].gasPrice // \"0\"")
+    local gas_token=$(echo "$response" | jq -r ".results[$idx].gasToken // \"0x0000000000000000000000000000000000000000\"")
+    local refund_receiver=$(echo "$response" | jq -r ".results[$idx].refundReceiver // \"0x0000000000000000000000000000000000000000\"")
+    local nonce=$(echo "$response" | jq -r ".results[$idx].nonce // \"0\"")
+    local data_decoded=$(echo "$response" | jq -r ".results[$idx].dataDecoded // \"0x\"")
 
     # Calculate and display the hashes.
     echo "==================================="
