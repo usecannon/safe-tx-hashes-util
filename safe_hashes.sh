@@ -28,55 +28,59 @@ readonly DOMAIN_SEPARATOR_TYPEHASH="0x47e79534a245952e8b16893a336b85a3d9ea9fa8c5
 # See: https://github.com/safe-global/safe-smart-account/blob/a0a1d4292006e26c4dbd52282f4c932e1ffca40f/contracts/Safe.sol#L59-L62.
 readonly SAFE_TX_TYPEHASH="0xbb8310d486368db6bd6f849402fdd73ad53d316b5a4b2644ad6efe0f941286d8"
 
+# Define the associative arrays for the API URLs and chain IDs.
+declare -A API_URLS
+declare -A CHAIN_IDS
+
 # Define the supported networks from the Safe transaction service.
 # See https://docs.safe.global/core-api/transaction-service-supported-networks.
-declare -A API_URLS=(
-    [arbitrum]="https://safe-transaction-arbitrum.safe.global"
-    [aurora]="https://safe-transaction-aurora.safe.global"
-    [avalanche]="https://safe-transaction-avalanche.safe.global"
-    [base]="https://safe-transaction-base.safe.global"
-    [base-sepolia]="https://safe-transaction-base-sepolia.safe.global"
-    [blast]="https://safe-transaction-blast.safe.global"
-    [bsc]="https://safe-transaction-bsc.safe.global"
-    [celo]="https://safe-transaction-celo.safe.global"
-    [ethereum]="https://safe-transaction-mainnet.safe.global"
-    [gnosis]="https://safe-transaction-gnosis-chain.safe.global"
-    [gnosis-chiado]="https://safe-transaction-chiado.safe.global"
-    [linea]="https://safe-transaction-linea.safe.global"
-    [mantle]="https://safe-transaction-mantle.safe.global"
-    [optimism]="https://safe-transaction-optimism.safe.global"
-    [polygon]="https://safe-transaction-polygon.safe.global"
-    [polygon-zkevm]="https://safe-transaction-zkevm.safe.global"
-    [scroll]="https://safe-transaction-scroll.safe.global"
-    [sepolia]="https://safe-transaction-sepolia.safe.global"
-    [worldchain]="https://safe-transaction-worldchain.safe.global"
-    [xlayer]="https://safe-transaction-xlayer.safe.global"
-    [zksync]="https://safe-transaction-zksync.safe.global"
+API_URLS=(
+    ["arbitrum"]="https://safe-transaction-arbitrum.safe.global"
+    ["aurora"]="https://safe-transaction-aurora.safe.global"
+    ["avalanche"]="https://safe-transaction-avalanche.safe.global"
+    ["base"]="https://safe-transaction-base.safe.global"
+    ["base-sepolia"]="https://safe-transaction-base-sepolia.safe.global"
+    ["blast"]="https://safe-transaction-blast.safe.global"
+    ["bsc"]="https://safe-transaction-bsc.safe.global"
+    ["celo"]="https://safe-transaction-celo.safe.global"
+    ["ethereum"]="https://safe-transaction-mainnet.safe.global"
+    ["gnosis"]="https://safe-transaction-gnosis-chain.safe.global"
+    ["gnosis-chiado"]="https://safe-transaction-chiado.safe.global"
+    ["linea"]="https://safe-transaction-linea.safe.global"
+    ["mantle"]="https://safe-transaction-mantle.safe.global"
+    ["optimism"]="https://safe-transaction-optimism.safe.global"
+    ["polygon"]="https://safe-transaction-polygon.safe.global"
+    ["polygon-zkevm"]="https://safe-transaction-zkevm.safe.global"
+    ["scroll"]="https://safe-transaction-scroll.safe.global"
+    ["sepolia"]="https://safe-transaction-sepolia.safe.global"
+    ["worldchain"]="https://safe-transaction-worldchain.safe.global"
+    ["xlayer"]="https://safe-transaction-xlayer.safe.global"
+    ["zksync"]="https://safe-transaction-zksync.safe.global"
 )
 
 # Define the chain IDs of the supported networks from the Safe transaction service.
-declare -A CHAIN_IDS=(
-    [arbitrum]=42161
-    [aurora]=1313161554
-    [avalanche]=43114
-    [base]=8453
-    [base-sepolia]=84532
-    [blast]=81457
-    [bsc]=56
-    [celo]=42220
-    [ethereum]=1
-    [gnosis]=100
-    [gnosis-chiado]=10200
-    [linea]=59144
-    [mantle]=5000
-    [optimism]=10
-    [polygon]=137
-    [polygon-zkevm]=1101
-    [scroll]=534352
-    [sepolia]=11155111
-    [worldchain]=480
-    [xlayer]=195
-    [zksync]=324
+CHAIN_IDS=(
+    ["arbitrum"]="42161"
+    ["aurora"]="1313161554"
+    ["avalanche"]="43114"
+    ["base"]="8453"
+    ["base-sepolia"]="84532"
+    ["blast"]="81457"
+    ["bsc"]="56"
+    ["celo"]="42220"
+    ["ethereum"]="1"
+    ["gnosis"]="100"
+    ["gnosis-chiado"]="10200"
+    ["linea"]="59144"
+    ["mantle"]="5000"
+    ["optimism"]="10"
+    ["polygon"]="137"
+    ["polygon-zkevm"]="1101"
+    ["scroll"]="534352"
+    ["sepolia"]="11155111"
+    ["worldchain"]="480"
+    ["xlayer"]="195"
+    ["zksync"]="324"
 )
 
 # Utility function to display the usage information.
