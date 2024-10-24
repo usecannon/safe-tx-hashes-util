@@ -92,7 +92,7 @@ Parameters: [
   }
 ]
 
-WARNING: This method modifies the owners or threshold of the Safe. Proceed with caution!
+WARNING: The "addOwnerWithThreshold" function modifies the owners or threshold of the Safe. Proceed with caution!
 
 > Hashes:
 Domain hash: 0x1CF7F9B1EFE3BC47FE02FD27C649FEA19E79D66040683A1C86C7490C80BF7291

@@ -186,13 +186,23 @@ print_decoded_data() {
         print_field "Method" "$method"
         print_field "Parameters" "$parameters"
 
-        # Check if the called method is sensitive and print a warning in bold.
+        # Check if the called function is sensitive and print a warning in bold.
         case "$method" in
         addOwnerWithThreshold | removeOwner | swapOwner | changeThreshold)
             echo
-            echo -e "${BOLD}${RED}WARNING: This method modifies the owners or threshold of the Safe. Proceed with caution!${RESET}"
+            echo -e "${BOLD}${RED}WARNING: The \"$method\" function modifies the owners or threshold of the Safe. Proceed with caution!${RESET}"
             ;;
         esac
+
+        # Check for sensitive functions in nested transactions.
+        echo "$parameters" | jq -c '.[] | .valueDecoded[]? | select(.dataDecoded != null)' | while read -r nested_param; do
+            nested_method=$(echo "$nested_param" | jq -r ".dataDecoded.method")
+
+            if [[ "$nested_method" =~ ^(addOwnerWithThreshold|removeOwner|swapOwner|changeThreshold)$ ]]; then
+                echo
+                echo -e "${BOLD}${RED}WARNING: The \"$nested_method\" function modifies the owners or threshold of the Safe! Proceed with caution!${RESET}"
+            fi
+        done
     fi
 }
 
