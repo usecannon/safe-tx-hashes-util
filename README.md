@@ -35,6 +35,9 @@ This Bash [script](./safe_hashes.sh) calculates the Safe transaction hashes by r
 > [!NOTE]
 > Ensure that [`cast`](https://github.com/foundry-rs/foundry/tree/master/crates/cast) and [`chisel`](https://github.com/foundry-rs/foundry/tree/master/crates/chisel) are installed locally. For installation instructions, refer to this [guide](https://book.getfoundry.sh/getting-started/installation).
 
+> [!TIP]
+> For macOS users, please refer to the [macOS Users: Upgrading Bash](#macos-users-upgrading-bash) section.
+
 ```console
 ./safe_hashes.sh [--help] [--list-networks] --network <network> --address <address> --nonce <nonce>
 ```
@@ -51,6 +54,40 @@ Before you invoke the script, make it executable:
 
 ```console
 chmod +x safe_hashes.sh
+```
+
+### macOS Users: Upgrading Bash
+
+This script requires Bash [`4.0`](https://tldp.org/LDP/abs/html/bashver4.html) or higher due to its use of associative arrays (introduced in Bash [`4.0`](https://tldp.org/LDP/abs/html/bashver4.html)). Unfortunately, macOS ships by default with Bash `3.2` due to licensing requirements. To use this script, install a newer version of Bash through [Homebrew](https://brew.sh):
+
+1. Install [Homebrew](https://brew.sh) if you haven't already:
+
+```console
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+2. Install the latest version of Bash:
+
+```console
+brew install bash
+```
+
+3. Add the new shell to the list of allowed shells:
+
+```console
+sudo bash -c 'echo /usr/local/bin/bash >> /etc/shells'
+```
+
+4. Optionally, make it your default shell:
+
+```console
+chsh -s /usr/local/bin/bash
+```
+
+You can verify your Bash version after the installation:
+
+```console
+bash --version
 ```
 
 ## Example
