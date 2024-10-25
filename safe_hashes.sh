@@ -20,6 +20,16 @@ readonly UNDERLINE="\e[4m"
 readonly BOLD="\e[1m"
 readonly RESET="\e[0m"
 
+# Check the Bash version compatibility.
+if ((BASH_VERSINFO[0] < 4)); then
+    echo "Error: This script requires Bash 4.0 or higher"
+    echo "Current version: ${RED}$BASH_VERSION${RESET}"
+    echo "Please upgrade your Bash installation"
+    echo "If you've already upgraded via Homebrew, try running:"
+    echo "/opt/homebrew/bin/bash $0 $@"
+    exit 1
+fi
+
 # Set the type hash constants.
 # => `keccak256("EIP712Domain(uint256 chainId,address verifyingContract)");`
 # See: https://github.com/safe-global/safe-smart-account/blob/a0a1d4292006e26c4dbd52282f4c932e1ffca40f/contracts/Safe.sol#L54-L57.
