@@ -7,6 +7,16 @@
 # @license GNU Affero General Public License v3.0 only
 # @author pcaversaccio
 
+# Check the Bash version compatibility.
+if [[ "$BASH_VERSINFO" -lt 4 ]]; then
+    echo "Error: This script requires Bash 4.0 or higher."
+    echo "Current version: $BASH_VERSION"
+    echo "Please upgrade your Bash installation."
+    echo "If you've already upgraded via Homebrew, try running:"
+    echo "/opt/homebrew/bin/bash $0 $@"
+    exit 1
+fi
+
 # Enable strict error handling:
 # -e: Exit immediately if a command exits with a non-zero status.
 # -u: Treat unset variables as an error and exit.
@@ -19,16 +29,6 @@ readonly RED="\e[31m"
 readonly UNDERLINE="\e[4m"
 readonly BOLD="\e[1m"
 readonly RESET="\e[0m"
-
-# Check the Bash version compatibility.
-if [[ "$BASH_VERSINFO" -lt 4 ]]; then
-    echo "Error: This script requires Bash 4.0 or higher"
-    echo "Current version: ${RED}$BASH_VERSION${RESET}"
-    echo "Please upgrade your Bash installation"
-    echo "If you've already upgraded via Homebrew, try running:"
-    echo "/opt/homebrew/bin/bash $0 $@"
-    exit 1
-fi
 
 # Set the type hash constants.
 # => `keccak256("EIP712Domain(uint256 chainId,address verifyingContract)");`
