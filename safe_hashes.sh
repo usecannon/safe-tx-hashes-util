@@ -21,7 +21,7 @@ readonly BOLD="\e[1m"
 readonly RESET="\e[0m"
 
 # Check the Bash version compatibility.
-if ((BASH_VERSINFO[0] < 4)); then
+if [[ "$BASH_VERSINFO" -lt 4 ]]; then
     echo "Error: This script requires Bash 4.0 or higher"
     echo "Current version: ${RED}$BASH_VERSION${RESET}"
     echo "Please upgrade your Bash installation"
