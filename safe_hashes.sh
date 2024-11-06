@@ -18,10 +18,17 @@ if [[ "$BASH_VERSINFO" -lt 4 ]]; then
 fi
 
 # Enable strict error handling:
+# -E: Inherit `ERR` traps in functions and subshells.
 # -e: Exit immediately if a command exits with a non-zero status.
 # -u: Treat unset variables as an error and exit.
 # -o pipefail: Return the exit status of the first failed command in a pipeline.
-set -euo pipefail
+set -Eeuo pipefail
+
+# Enable debug mode if the environment variable `DEBUG` is set to `true`.
+if [[ "${DEBUG:-false}" == "true" ]]; then
+    # Print each command before executing it.
+    set -x
+fi
 
 # Set the terminal formatting constants.
 readonly GREEN="\e[32m"
@@ -119,7 +126,7 @@ list_networks() {
 # Utility function to print a section header.
 print_header() {
     local header=$1
-    if [ -t 1 ] && tput sgr0 >/dev/null 2>&1; then
+    if [[ -t 1 ]] && tput sgr0 >/dev/null 2>&1; then
         # Terminal supports formatting.
         printf "\n${UNDERLINE}%s${RESET}\n" "$header"
     else
@@ -134,7 +141,7 @@ print_field() {
     local value=$2
     local empty_line=${3:-false}
 
-    if [ -t 1 ] && tput sgr0 >/dev/null 2>&1; then
+    if [[ -t 1 ]] && tput sgr0 >/dev/null 2>&1; then
         # Terminal supports formatting.
         printf "%s: ${GREEN}%s${RESET}\n" "$label" "$value"
     else
@@ -143,8 +150,8 @@ print_field() {
     fi
 
     # Print an empty line if requested.
-    if [ "$empty_line" == "true" ]; then
-        echo
+    if [[ "$empty_line" == "true" ]]; then
+        printf "\n"
     fi
 }
 
@@ -351,6 +358,8 @@ EOF
                 echo "$(tput setaf 1)Error: No transaction found at index $idx. Please try again.$(tput sgr0)"
                 continue
             fi
+
+            printf "\n"
 
             break
         done

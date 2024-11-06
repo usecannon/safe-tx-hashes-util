@@ -62,6 +62,8 @@ chmod +x safe_hashes.sh
 > [!TIP]
 > The [script](./safe_hashes.sh) is already set as _executable_ in the repository, so you can run it immediately after cloning or pulling the repository without needing to change permissions.
 
+To enable _debug mode_, set the `DEBUG` environment variable to `true` before running the [script](./safe_hashes.sh), i.e. `DEBUG=true ./safe_hashes.sh ...`. This will print each command before it is executed, which is helpful when troubleshooting.
+
 ### macOS Users: Upgrading Bash
 
 This [script](./safe_hashes.sh) requires Bash [`4.0`](https://tldp.org/LDP/abs/html/bashver4.html) or higher due to its use of associative arrays (introduced in Bash [`4.0`](https://tldp.org/LDP/abs/html/bashver4.html)). Unfortunately, macOS ships by default with Bash `3.2` due to licensing requirements. To use this [script](./safe_hashes.sh), install a newer version of Bash through [Homebrew](https://brew.sh):
