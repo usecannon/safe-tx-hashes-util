@@ -62,7 +62,13 @@ chmod +x safe_hashes.sh
 > [!TIP]
 > The [script](./safe_hashes.sh) is already set as _executable_ in the repository, so you can run it immediately after cloning or pulling the repository without needing to change permissions.
 
-To enable _debug mode_, set the `DEBUG` environment variable to `true` before running the [script](./safe_hashes.sh), i.e. `DEBUG=true ./safe_hashes.sh ...`. This will print each command before it is executed, which is helpful when troubleshooting.
+To enable _debug mode_, set the `DEBUG` environment variable to `true` before running the [script](./safe_hashes.sh):
+
+```console
+DEBUG=true ./safe_hashes.sh ...
+```
+
+This will print each command before it is executed, which is helpful when troubleshooting.
 
 ### macOS Users: Upgrading Bash
 
