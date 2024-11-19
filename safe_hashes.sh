@@ -159,12 +159,14 @@ print_field() {
 print_transaction_data() {
     local address=$1
     local to=$2
-    local data=$3
-    local message=$4
+    local value=$3
+    local data=$4
+    local message=$5
 
     print_header "Transaction Data"
     print_field "Multisig address" "$address"
     print_field "To" "$to"
+    print_field "Value" "$value"
     print_field "Data" "$data"
     print_field "Encoded message" "$message"
 }
@@ -270,21 +272,53 @@ calculate_hashes() {
         awk '/Data:/ {gsub(/\x1b\[[0-9;]*m/, "", $3); print $3}')
 
     # Print the retrieved transaction data.
-    print_transaction_data "$address" "$to" "$data" "$message"
+    print_transaction_data "$address" "$to" "$value" "$data" "$message"
     # Print the ABI-decoded transaction data.
     print_decoded_data "$data_decoded"
     # Print the results with the same formatting for "Domain hash" and "Message hash" as a Ledger hardware device.
     print_hash_info "$domain_hash" "$message_hash" "$safe_tx_hash"
 }
 
+# Utility function to validate the network name.
+validate_network() {
+    local network="$1"
+    if [[ -z "${API_URLS[$network]:-}" || -z "${CHAIN_IDS[$network]:-}" ]]; then
+        echo -e "${BOLD}${RED}Invalid network name: \"${network}\"${RESET}\n" >&2
+        calculate_safe_tx_hashes --list-networks >&2
+        exit 1
+    fi
+}
+
 # Utility function to retrieve the API URL of the selected network.
 get_api_url() {
-    echo "${API_URLS[$1]:-Invalid network}" || exit 1
+    local network="$1"
+    validate_network "$network"
+    echo "${API_URLS[$network]}"
 }
 
 # Utility function to retrieve the chain ID of the selected network.
 get_chain_id() {
-    echo "${CHAIN_IDS[$1]:-Invalid network}" || exit 1
+    local network="$1"
+    validate_network "$network"
+    echo "${CHAIN_IDS[$network]}"
+}
+
+# Utility function to validate the multisig address.
+validate_address() {
+    local address="$1"
+    if [[ -z "$address" || ! "$address" =~ ^0x[a-fA-F0-9]{40}$ ]]; then
+        echo -e "${RED}Invalid Ethereum address format: \"${address}\"${RESET}" >&2
+        exit 1
+    fi
+}
+
+# Utility function to validate the transaction nonce.
+validate_nonce() {
+    local nonce="$1"
+    if [[ -z "$nonce" || ! "$nonce" =~ ^[0-9]+$ ]]; then
+        echo -e "${RED}Invalid nonce value: \"${nonce}\". Must be a non-negative integer!${RESET}" >&2
+        exit 1
+    fi
 }
 
 # Safe Transaction Hashes Calculator
@@ -311,8 +345,8 @@ calculate_safe_tx_hashes() {
         esac
     done
 
-    # Check if the required parameters are provided.
-    [ -z "$network" -o -z "$address" -o -z "$nonce" ] && usage
+    # Validate if the required parameters have the correct format.
+    ! validate_network "$network" || ! validate_address "$address" || ! validate_nonce "$nonce"
 
     # Get the API URL and chain ID for the specified network.
     local api_url=$(get_api_url "$network")
