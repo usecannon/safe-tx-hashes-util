@@ -117,7 +117,7 @@ EOF
 # Utility function to list all supported networks.
 list_networks() {
     echo "Supported Networks:"
-    for network in "${!CHAIN_IDS[@]}"; do
+    for network in $(echo "${!CHAIN_IDS[@]}" | tr " " "\n" | sort); do
         echo "  $network (${CHAIN_IDS[$network]})"
     done
     exit 0
@@ -214,7 +214,7 @@ print_decoded_data() {
         esac
 
         # Check for sensitive functions in nested transactions.
-        echo "$parameters" | jq -c '.[] | .valueDecoded[]? | select(.dataDecoded != null)' | while read -r nested_param; do
+        echo "$parameters" | jq -c ".[] | .valueDecoded[]? | select(.dataDecoded != null)" | while read -r nested_param; do
             nested_method=$(echo "$nested_param" | jq -r ".dataDecoded.method")
 
             if [[ "$nested_method" =~ ^(addOwnerWithThreshold|removeOwner|swapOwner|changeThreshold)$ ]]; then
@@ -355,7 +355,7 @@ calculate_safe_tx_hashes() {
 
     # Fetch the transaction data from the API.
     local response=$(curl -s "$endpoint")
-    local count=$(echo "$response" | jq '.count')
+    local count=$(echo "$response" | jq -r ".count // \"0\"")
     local idx=0
 
     # Inform the user that no transactions are available for the specified nonce.
