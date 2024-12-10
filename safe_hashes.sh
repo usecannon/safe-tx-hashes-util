@@ -8,7 +8,7 @@
 # @author pcaversaccio
 
 # Check the Bash version compatibility.
-if [[ "${BASH_VERSINFO:-0}" -lt 4 ]]; then
+if [[ "${BASH_VERSINFO[0]:-0}" -lt 4 ]]; then
     echo "Error: This script requires Bash 4.0 or higher."
     echo "Current version: $BASH_VERSION"
     echo "Please upgrade your Bash installation."
