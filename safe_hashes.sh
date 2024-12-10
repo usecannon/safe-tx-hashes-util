@@ -7,15 +7,45 @@
 # @license GNU Affero General Public License v3.0 only
 # @author pcaversaccio
 
+# Set the terminal formatting constants.
+readonly GREEN="\e[32m"
+readonly RED="\e[31m"
+readonly UNDERLINE="\e[4m"
+readonly BOLD="\e[1m"
+readonly RESET="\e[0m"
+
 # Check the Bash version compatibility.
 if [[ "${BASH_VERSINFO[0]:-0}" -lt 4 ]]; then
-    echo "Error: This script requires Bash 4.0 or higher."
-    echo "Current version: $BASH_VERSION"
-    echo "Please upgrade your Bash installation."
-    echo "If you've already upgraded via Homebrew, try running:"
-    echo "/opt/homebrew/bin/bash $0 $@"
+    echo -e "${BOLD}${RED}Error: This script requires Bash 4.0 or higher.${RESET}"
+    echo -e "${BOLD}${RED}Current version: $BASH_VERSION${RESET}"
+    echo -e "${BOLD}${RED}Please upgrade your Bash installation.${RESET}"
+    echo -e "${BOLD}${RED}If you've already upgraded via Homebrew, try running:${RESET}"
+    echo -e "${BOLD}${RED}/opt/homebrew/bin/bash $0 $@${RESET}"
     exit 1
 fi
+
+# Utility function to ensure all required tools are installed.
+check_required_tools() {
+    local tools=("curl" "jq" "chisel" "cast")
+    local missing_tools=()
+
+    for tool in "${tools[@]}"; do
+        if ! command -v "$tool" &>/dev/null; then
+            missing_tools+=("$tool")
+        fi
+    done
+
+    if [[ ${#missing_tools[@]} -ne 0 ]]; then
+        echo -e "${BOLD}${RED}The following required tools are not installed:${RESET}"
+        for tool in "${missing_tools[@]}"; do
+            echo -e "${BOLD}${RED}  - $tool${RESET}"
+        done
+        echo -e "${BOLD}${RED}Please install them to run the script properly.${RESET}"
+        exit 1
+    fi
+}
+
+check_required_tools
 
 # Enable strict error handling:
 # -E: Inherit `ERR` traps in functions and subshells.
@@ -29,13 +59,6 @@ if [[ "${DEBUG:-false}" == "true" ]]; then
     # Print each command before executing it.
     set -x
 fi
-
-# Set the terminal formatting constants.
-readonly GREEN="\e[32m"
-readonly RED="\e[31m"
-readonly UNDERLINE="\e[4m"
-readonly BOLD="\e[1m"
-readonly RESET="\e[0m"
 
 # Set the type hash constants.
 # => `keccak256("EIP712Domain(uint256 chainId,address verifyingContract)");`
@@ -388,7 +411,7 @@ get_chain_id() {
 validate_address() {
     local address="$1"
     if [[ -z "$address" || ! "$address" =~ ^0x[a-fA-F0-9]{40}$ ]]; then
-        echo -e "${RED}Invalid Ethereum address format: \"${address}\"${RESET}" >&2
+        echo -e "${BOLD}${RED}Invalid Ethereum address format: \"${address}\"${RESET}" >&2
         exit 1
     fi
 }
@@ -397,7 +420,7 @@ validate_address() {
 validate_nonce() {
     local nonce="$1"
     if [[ -z "$nonce" || ! "$nonce" =~ ^[0-9]+$ ]]; then
-        echo -e "${RED}Invalid nonce value: \"${nonce}\". Must be a non-negative integer!${RESET}" >&2
+        echo -e "${BOLD}${RED}Invalid nonce value: \"${nonce}\". Must be a non-negative integer!${RESET}" >&2
         exit 1
     fi
 }
@@ -406,11 +429,11 @@ validate_nonce() {
 validate_message_file() {
     local message_file="$1"
     if [[ ! -f "$message_file" ]]; then
-        echo -e "${RED}Message file not found: \"${message_file}\"!${RESET}" >&2
+        echo -e "${BOLD}${RED}Message file not found: \"${message_file}\"!${RESET}" >&2
         exit 1
     fi
     if [[ ! -s "$message_file" ]]; then
-        echo -e "${RED}Message file is empty: \"${message_file}\"!${RESET}" >&2
+        echo -e "${BOLD}${RED}Message file is empty: \"${message_file}\"!${RESET}" >&2
         exit 1
     fi
 }
