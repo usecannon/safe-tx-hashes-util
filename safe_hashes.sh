@@ -554,7 +554,7 @@ calculate_safe_hashes() {
         exit 0
     # Notify the user about multiple transactions with identical nonce values and prompt for user input.
     elif [[ $count -gt 1 ]]; then
-        cat << EOF
+        cat <<EOF
 $(tput setaf 3)Several transactions with identical nonce values have been detected.
 This occurrence is normal if you are deliberately replacing an existing transaction.
 However, if your Safe interface displays only a single transaction, this could indicate
