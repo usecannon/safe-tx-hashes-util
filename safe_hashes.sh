@@ -78,7 +78,7 @@ readonly SAFE_TX_TYPEHASH_OLD="0x14d461bc7412367e924637b363c7bf29b8f47e2f84869f4
 readonly SAFE_MSG_TYPEHASH="0x60b3cbf8b4a223d68d641b3b6ddf9a298e7f33710cf3d3a9d1146b5a6150fbca"
 
 # Define the supported networks from the Safe transaction service.
-# See https://docs.safe.global/core-api/transaction-service-supported-networks.
+# See https://docs.safe.global/advanced/smart-account-supported-networks?service=Transaction+Service.
 declare -A -r API_URLS=(
     ["arbitrum"]="https://safe-transaction-arbitrum.safe.global"
     ["aurora"]="https://safe-transaction-aurora.safe.global"
