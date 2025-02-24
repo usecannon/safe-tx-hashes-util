@@ -235,36 +235,32 @@ print_hash_info() {
 
 # Utility function to print the ABI-decoded transaction data.
 print_decoded_data() {
-    local data_decoded=$1
+    local raw_data=$1
+    local multicall_decoded=$(cast decode-calldata "aggregate3Value((address,bool,uint256,bytes)[])" $data)
+    local multicall_json=${multicall_decoded//(/[}
+    multicall_json=${multicall_json//)/]}
+    multicall_json=$(echo $multicall_json | sed 's/\(0x[0-9a-fA-F]*\)/"\1"/g')
 
-    if [[ "$data_decoded" == "0x" ]]; then
-        print_field "Method" "0x (ETH Transfer)"
-        print_field "Parameters" "[]"
-    else
-        local method=$(echo "$data_decoded" | jq -r ".method")
-        local parameters=$(echo "$data_decoded" | jq -r ".parameters")
+    local callIndex=1
+    for call in $(echo $multicall_json | jq -c '.[]'); do
+        local to=$(echo $call | jq -r '.[0]')
+        local requireSuccess=$(echo $call | jq -r '.[1]')
+        local value=$(echo $call | jq -r '.[2]')
+        local calldata=$(echo $call | jq -r '.[3]')
 
-        print_field "Method" "$method"
-        print_field "Parameters" "$parameters"
+        echo
+        echo "Call $callIndex:"
+        echo "  To: ${to}"
+        echo "  Value: ${value}"
+        echo "  Data:  $(cast pretty-calldata $calldata 2>/dev/null || echo $calldata)"
+        echo "  Require Success: ${requireSuccess}"
 
-        # Check if the called function is sensitive and print a warning in bold.
-        case "$method" in
-        addOwnerWithThreshold | removeOwner | swapOwner | changeThreshold)
-            echo
-            echo -e "${BOLD}${RED}WARNING: The \"$method\" function modifies the owners or threshold of the Safe. Proceed with caution!${RESET}"
-            ;;
-        esac
+        if (( callIndex == 1 && to == "0x0000000000000000000000000000000000000000" )); then
+            echo "  NOTE: This looks like a cannon metadata transaction."
+        fi
 
-        # Check for sensitive functions in nested transactions.
-        echo "$parameters" | jq -c ".[] | .valueDecoded[]? | select(.dataDecoded != null)" | while read -r nested_param; do
-            nested_method=$(echo "$nested_param" | jq -r ".dataDecoded.method")
-
-            if [[ "$nested_method" =~ ^(addOwnerWithThreshold|removeOwner|swapOwner|changeThreshold)$ ]]; then
-                echo
-                echo -e "${BOLD}${RED}WARNING: The \"$nested_method\" function modifies the owners or threshold of the Safe! Proceed with caution!${RESET}"
-            fi
-        done
-    fi
+        ((callIndex++))
+    done
 }
 
 # Utility function to extract the clean Safe multisig version.
@@ -331,8 +327,7 @@ calculate_hashes() {
     local gas_token=${10}
     local refund_receiver=${11}
     local nonce=${12}
-    local data_decoded=${13}
-    local version=${14}
+    local version=${13}
 
     local domain_separator_typehash="$DOMAIN_SEPARATOR_TYPEHASH"
     local domain_hash_args="$domain_separator_typehash, $chain_id, $address"
@@ -382,7 +377,7 @@ calculate_hashes() {
     # Print the retrieved transaction data.
     print_transaction_data "$address" "$to" "$value" "$data" "$message"
     # Print the ABI-decoded transaction data.
-    print_decoded_data "$data_decoded"
+    print_decoded_data "$data"
     # Print the results with the same formatting for "Domain hash" and "Message hash" as a Ledger hardware device.
     print_hash_info "$domain_hash" "$message_hash" "$safe_tx_hash"
 }
@@ -558,7 +553,6 @@ calculate_safe_hashes() {
     local response=$(curl -sf "$endpoint")
     local count=$(echo "$response" | jq -r "[.[] | select(.txn._nonce == $nonce)] | length // \"0\"")
     local idx=$(echo "$response" | jq -r "to_entries[] | select(.value.txn._nonce == $nonce) | .key // \"0\"")
-    echo idx is $idx
 
     # Inform the user that no transactions are available for the specified nonce.
     if [[ $count -eq 0 ]]; then
@@ -611,7 +605,6 @@ EOF
     local gas_token=$(echo "$response" | jq -r ".[$idx].txn.gasToken // \"0x0000000000000000000000000000000000000000\"")
     local refund_receiver=$(echo "$response" | jq -r ".[$idx].txn.refundReceiver // \"0x0000000000000000000000000000000000000000\"")
     local nonce=$(echo "$response" | jq -r ".[$idx].txn._nonce // \"0\"")
-    local data_decoded=$(echo "$response" | jq -r ".[$idx].txn.dataDecoded // \"0x\"")
 
     # Calculate and display the hashes.
     echo "==================================="
@@ -634,7 +627,6 @@ EOF
         "$gas_token" \
         "$refund_receiver" \
         "$nonce" \
-        "$data_decoded" \
         "$version"
 }
 
