@@ -6,6 +6,8 @@
 
 # @license GNU Affero General Public License v3.0 only
 # @author pcaversaccio
+# Some modifications to work with cannon safe transaction service by:
+# @author dbeal-eth
 
 # Set the terminal formatting constants.
 readonly GREEN="\e[32m"
@@ -77,6 +79,8 @@ readonly SAFE_TX_TYPEHASH_OLD="0x14d461bc7412367e924637b363c7bf29b8f47e2f84869f4
 # See: https://github.com/safe-global/safe-smart-account/blob/febab5e4e859e6e65914f17efddee415e4992961/contracts/libraries/SignMessageLib.sol#L12-L13.
 readonly SAFE_MSG_TYPEHASH="0x60b3cbf8b4a223d68d641b3b6ddf9a298e7f33710cf3d3a9d1146b5a6150fbca"
 
+readonly DEFAULT_CANNON_SAFE_TX_SERVICE="https://safe.usecannon.com"
+
 # Define the supported networks from the Safe transaction service.
 # See https://docs.safe.global/advanced/smart-account-supported-networks?service=Transaction+Service.
 declare -A -r API_URLS=(
@@ -131,17 +135,17 @@ declare -A -r CHAIN_IDS=(
 # Utility function to display the usage information.
 usage() {
     cat <<EOF
-Usage: $0 [--help] [--list-networks]
+Usage: $0 [--help] [--list-networks] [--api-url <url>]
        --network <network> --address <address> --nonce <nonce>
        --message <file>
 
 Options:
   --help              Display this help message
   --list-networks     List all supported networks and their chain IDs
-  --network <network> Specify the network (required)
   --address <address> Specify the Safe multisig address (required)
   --nonce <nonce>     Specify the transaction nonce (required for transaction hashes)
   --message <file>    Specify the message file (required for off-chain message hashes)
+  --api-url <url>     Specify the Cannon Safe transaction batcher service
 
 Example for transaction hashes:
   $0 --network ethereum --address 0x1234...5678 --nonce 42
@@ -393,13 +397,6 @@ validate_network() {
     fi
 }
 
-# Utility function to retrieve the API URL of the selected network.
-get_api_url() {
-    local network="$1"
-    validate_network "$network"
-    echo "${API_URLS[$network]}"
-}
-
 # Utility function to retrieve the chain ID of the selected network.
 get_chain_id() {
     local network="$1"
@@ -421,6 +418,15 @@ validate_nonce() {
     local nonce="$1"
     if [[ -z "$nonce" || ! "$nonce" =~ ^[0-9]+$ ]]; then
         echo -e "${BOLD}${RED}Invalid nonce value: \"${nonce}\". Must be a non-negative integer!${RESET}" >&2
+        exit 1
+    fi
+}
+
+# Utility function to validate an api url
+validate_api_url() {
+    local api_url="$1"
+    if [[ -z "$api_url" || ! "$api_url" =~ ^https?://.*[^/]$ ]]; then
+        echo -e "${BOLD}${RED}Invalid API URL value: \"${api_url}\". An API URL without ending slash!${RESET}" >&2
         exit 1
     fi
 }
@@ -508,7 +514,7 @@ calculate_safe_hashes() {
         usage
     fi
 
-    local network="" address="" nonce="" message_file=""
+    local network="" address="" nonce="" message_file="" api_url="$DEFAULT_CANNON_SAFE_TX_SERVICE"
 
     # Parse the command line arguments.
     while [[ $# -gt 0 ]]; do
@@ -519,6 +525,7 @@ calculate_safe_hashes() {
             --nonce) nonce="$2"; shift 2 ;;
             --message) message_file="$2"; shift 2 ;;
             --list-networks) list_networks ;;
+            --api-url)  api_url="$2"; shift 2 ;;
             *) echo "Unknown option: $1" >&2; usage ;;
         esac
     done
@@ -526,14 +533,13 @@ calculate_safe_hashes() {
     # Validate if the required parameters have the correct format.
     validate_network "$network"
     validate_address "$address"
+    validate_api_url "$api_url"
 
     # Get the API URL and chain ID for the specified network.
-    local api_url=$(get_api_url "$network")
     local chain_id=$(get_chain_id "$network")
-    local endpoint="${api_url}/api/v1/safes/${address}/multisig-transactions/?nonce=${nonce}"
-
-    # Get the Safe multisig version.
-    local version=$(curl -sf "${api_url}/api/v1/safes/${address}/" | jq -r ".version // \"0.0.0\"")
+    local endpoint="${api_url}/${chain_id}/${address}"
+    # for now we assume the version is 1.3.0
+    local version="1.3.0"
 
     # Calculate the domain and message hashes for off-chain messages.
     if [[ -n "$message_file" ]]; then
@@ -550,8 +556,9 @@ calculate_safe_hashes() {
 
     # Fetch the transaction data from the API.
     local response=$(curl -sf "$endpoint")
-    local count=$(echo "$response" | jq -r ".count // \"0\"")
-    local idx=0
+    local count=$(echo "$response" | jq -r "[.[] | select(.txn._nonce == $nonce)] | length // \"0\"")
+    local idx=$(echo "$response" | jq -r "to_entries[] | select(.value.txn._nonce == $nonce) | .key // \"0\"")
+    echo idx is $idx
 
     # Inform the user that no transactions are available for the specified nonce.
     if [[ $count -eq 0 ]]; then
@@ -594,17 +601,17 @@ EOF
         done
     fi
 
-    local to=$(echo "$response" | jq -r ".results[$idx].to // \"0x0000000000000000000000000000000000000000\"")
-    local value=$(echo "$response" | jq -r ".results[$idx].value // \"0\"")
-    local data=$(echo "$response" | jq -r ".results[$idx].data // \"0x\"")
-    local operation=$(echo "$response" | jq -r ".results[$idx].operation // \"0\"")
-    local safe_tx_gas=$(echo "$response" | jq -r ".results[$idx].safeTxGas // \"0\"")
-    local base_gas=$(echo "$response" | jq -r ".results[$idx].baseGas // \"0\"")
-    local gas_price=$(echo "$response" | jq -r ".results[$idx].gasPrice // \"0\"")
-    local gas_token=$(echo "$response" | jq -r ".results[$idx].gasToken // \"0x0000000000000000000000000000000000000000\"")
-    local refund_receiver=$(echo "$response" | jq -r ".results[$idx].refundReceiver // \"0x0000000000000000000000000000000000000000\"")
-    local nonce=$(echo "$response" | jq -r ".results[$idx].nonce // \"0\"")
-    local data_decoded=$(echo "$response" | jq -r ".results[$idx].dataDecoded // \"0x\"")
+    local to=$(echo "$response" | jq -r ".[$idx].txn.to // \"0x0000000000000000000000000000000000000000\"")
+    local value=$(echo "$response" | jq -r ".[$idx].txn.value // \"0\"")
+    local data=$(echo "$response" | jq -r ".[$idx].txn.data // \"0x\"")
+    local operation=$(echo "$response" | jq -r ".[$idx].txn.operation // \"0\"")
+    local safe_tx_gas=$(echo "$response" | jq -r ".[$idx].txn.safeTxGas // \"0\"")
+    local base_gas=$(echo "$response" | jq -r ".[$idx].txn.baseGas // \"0\"")
+    local gas_price=$(echo "$response" | jq -r ".[$idx].txn.gasPrice // \"0\"")
+    local gas_token=$(echo "$response" | jq -r ".[$idx].txn.gasToken // \"0x0000000000000000000000000000000000000000\"")
+    local refund_receiver=$(echo "$response" | jq -r ".[$idx].txn.refundReceiver // \"0x0000000000000000000000000000000000000000\"")
+    local nonce=$(echo "$response" | jq -r ".[$idx].txn._nonce // \"0\"")
+    local data_decoded=$(echo "$response" | jq -r ".[$idx].txn.dataDecoded // \"0x\"")
 
     # Calculate and display the hashes.
     echo "==================================="
